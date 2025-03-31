@@ -1,42 +1,47 @@
-let lista = []
-let i = 0
-let listaChecked = []
-const formulario = document.getElementById('formulario')
-const divMostrar = document.getElementById('mostrarTareas')
+let lista = [];
+let listaChecked = [];
+const formulario = document.getElementById("formulario");
+const divMostrar = document.getElementById("mostrarTareas");
 
- 
+formulario.addEventListener("submit", (event) => {
+  event.preventDefault();
+  const tareaInput = document.getElementById("tarea");
+  const tarea = tareaInput.value;
+  
+  if (tarea) {
+    lista.push(tarea);
+    listaChecked.push(false);
+    MostrarTareas();
+    tareaInput.value = '';
+  }
+});
 
+const MostrarTareas = () => {
+  divMostrar.innerHTML = '';
 
-
-formulario.addEventListener("submit", addTarea = () => {
-    const tareaInput = document.getElementById('tarea')
-    const tarea = tareaInput.value
-    lista.push(tarea)
-    MostrarTareas(lista)
+  lista.forEach((element, index) => {
+    // Crear elementos de manera dinámica
+    const tareaDiv = document.createElement("div");
     
-})
+    const checkbox = document.createElement("input");
+    checkbox.type = "checkbox";
+    checkbox.id = `checkTarea${index}`;
+    checkbox.checked = listaChecked[index];
 
+    const label = document.createElement("label");
+    label.id = `campo${index}`;
+    label.textContent = element;
+    label.style.textDecoration = listaChecked[index] ? "line-through" : "none";
 
-MostrarTareas = (lista) => {
-    const element = lista[i]
-    divMostrar.innerHTML += `<input type="checkbox" id="checkTarea${i}">${element}</br>`
-    listaChecked.push(false)
-    
-    const tareaChech = document.getElementById(`checkTarea${i}`)
-    tareaChech.addEventListener("change", recorrerArray = () => {
-        listaChecked[i] = tareaChech.checked
-        console.log(listaChecked)
-        listaChecked.forEach(element => {
-            if(element == true){
-                console.log("IF TRUE")
-                const InputCambiar = document.getElementById(`${element}`)
-                InputCambiar.style.textDecoration = "line-through";
-            }
-        });
+    // Evento para actualizar el estado cuando se cambia el checkbox
+    checkbox.addEventListener("change", () => {
+      listaChecked[index] = checkbox.checked;
+      label.style.textDecoration = checkbox.checked ? "line-through" : "none";
+    });
 
-    })
-    i++
-}
-
-
-
+    // Agregar elementos al contenedor
+    tareaDiv.appendChild(checkbox);
+    tareaDiv.appendChild(label);
+    divMostrar.appendChild(tareaDiv);
+  });
+};
