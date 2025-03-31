@@ -7,7 +7,7 @@ formulario.addEventListener("submit", (event) => {
   event.preventDefault();
   const tareaInput = document.getElementById("tarea");
   const tarea = tareaInput.value;
-  
+
   if (tarea) {
     lista.push(tarea);
     listaChecked.push(false);
@@ -20,9 +20,8 @@ const MostrarTareas = () => {
   divMostrar.innerHTML = '';
 
   lista.forEach((element, index) => {
-    // Crear elementos de manera dinámica
     const tareaDiv = document.createElement("div");
-    
+
     const checkbox = document.createElement("input");
     checkbox.type = "checkbox";
     checkbox.id = `checkTarea${index}`;
@@ -33,15 +32,35 @@ const MostrarTareas = () => {
     label.textContent = element;
     label.style.textDecoration = listaChecked[index] ? "line-through" : "none";
 
-    // Evento para actualizar el estado cuando se cambia el checkbox
+    const btnEliminar = document.createElement("button");
+    btnEliminar.textContent = "❌";
+    btnEliminar.style.marginLeft = "10px";
+    btnEliminar.onclick = () => eliminarTarea(index);
+
     checkbox.addEventListener("change", () => {
       listaChecked[index] = checkbox.checked;
       label.style.textDecoration = checkbox.checked ? "line-through" : "none";
     });
 
-    // Agregar elementos al contenedor
     tareaDiv.appendChild(checkbox);
     tareaDiv.appendChild(label);
+    tareaDiv.appendChild(btnEliminar);
     divMostrar.appendChild(tareaDiv);
   });
 };
+
+const eliminarTarea = (index) => {
+  lista.splice(index, 1);
+  listaChecked.splice(index, 1);
+  MostrarTareas();
+};
+
+const eliminarTodo = () =>{
+    console.log("aoijnsdaisdiasdiahsbdibu")
+    console.log(lista)
+    lista.forEach(element => {
+        lista.splice(element, 1)
+        listaChecked.splice(element, 1)
+    });
+    divMostrar.innerHTML = '';
+}
