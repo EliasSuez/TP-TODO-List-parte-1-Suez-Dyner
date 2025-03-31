@@ -4,19 +4,24 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TP01 - TODO LIST</title>
-    
 </head>
 <body>
     <main>
         <form action="#" id="formulario">
-            <input type="text" id="tarea">
+            <input type="text" id="tarea" placeholder="Nueva tarea">
             <button type="submit">Añadir tarea</button>  
-            
         </form>
+
+        <!-- Agregamos el filtro aquí -->
+        <select id="filtro">
+            <option value="todas">Todas</option>
+            <option value="completadas">Completadas</option>
+            <option value="pendientes">Pendientes</option>
+        </select>
+
         <button onclick="eliminarTodo()">Eliminar todo</button>  
-        <div id="mostrarTareas">
-            
-        </div>
+
+        <div id="mostrarTareas"></div>
     </main>
 </body>
 <script src="script.js"></script>
