@@ -10,7 +10,7 @@
     <main>
         <form id="formulario">
             <input type="text" id="tarea" placeholder="Escribe una tarea...">
-            <button type="submit">Añadir</button>  
+            <button type="submit" class= "BotonSubmit">Añadir</button>  
         </form>
 
         <div class="actions">
@@ -19,8 +19,8 @@
                 <option value="pendientes">Pendientes</option>
                 <option value="completadas">Completadas</option>
             </select>
-            <button onclick="tareaMasRapida()">Más Rápida</button>
-            <button onclick="eliminarTodo()">Eliminar Todo</button>
+            <button class="BotonMasRapido"  onclick="tareaMasRapida()">Más Rápida</button>
+            <button class="BotonElimiar" onclick="eliminarTodo()">Eliminar Todo</button>
         </div>
 
         <div id="mostrarTareas"></div>
