@@ -1,97 +1,102 @@
-let lista = JSON.parse(localStorage.getItem("tareas")) || [];
-let listaChecked = JSON.parse(localStorage.getItem("tareasChecked")) || [];
+const lista = JSON.parse(localStorage.getItem("tareas")) || [];
+const listaChecked = JSON.parse(localStorage.getItem("tareasChecked")) || [];
+const listaTiempos = JSON.parse(localStorage.getItem("tareasTiempos")) || [];
+const listaCompletadas = JSON.parse(localStorage.getItem("tareasCompletadas")) || [];
 
 const formulario = document.getElementById("formulario");
 const divMostrar = document.getElementById("mostrarTareas");
 const filtroSelect = document.getElementById("filtro");
 
-// Agregar nueva tarea
 formulario.addEventListener("submit", (event) => {
-  event.preventDefault();
-  const tareaInput = document.getElementById("tarea");
-  const tarea = tareaInput.value.trim();
+    event.preventDefault();
+    const tareaInput = document.getElementById("tarea");
+    const tarea = tareaInput.value.trim();
 
-  if (tarea) {
-    lista.push(tarea);
-    listaChecked.push(false);
-    guardarEnLocalStorage();
-    MostrarTareas();
-    tareaInput.value = ''; // Limpiar input
-  }
+    if (tarea) {
+        const fechaCreacion = new Date().toISOString();
+        lista.push(tarea);
+        listaChecked.push(false);
+        listaTiempos.push(fechaCreacion);
+        listaCompletadas.push(null);
+        guardarEnLocalStorage();
+        MostrarTareas();
+        tareaInput.value = "";
+    }
 });
 
 // Guardar en localStorage
 const guardarEnLocalStorage = () => {
-  localStorage.setItem("tareas", JSON.stringify(lista));
-  localStorage.setItem("tareasChecked", JSON.stringify(listaChecked));
+    localStorage.setItem("tareas", JSON.stringify(lista));
+    localStorage.setItem("tareasChecked", JSON.stringify(listaChecked));
+    localStorage.setItem("tareasTiempos", JSON.stringify(listaTiempos));
+    localStorage.setItem("tareasCompletadas", JSON.stringify(listaCompletadas));
 };
 
 // Mostrar tareas con filtro
 const MostrarTareas = () => {
-  divMostrar.innerHTML = ''; // Limpiar antes de mostrar
+    divMostrar.innerHTML = "";
 
-  let filtro = filtroSelect.value; // Obtener opción del filtro
+    lista.forEach((element, index) => {
+        const completada = listaChecked[index];
+        if ((filtroSelect.value === "completadas" && !completada) || (filtroSelect.value === "pendientes" && completada)) {
+            return;
+        }
 
-  lista.forEach((element, index) => {
-    let completada = listaChecked[index];
+        const fechaCreacion = new Date(listaTiempos[index]).toLocaleString();
+        const fechaFinalizacion = listaCompletadas[index] ? new Date(listaCompletadas[index]).toLocaleString() : "No completada";
 
-    // Filtrar según opción seleccionada
-    if (
-      (filtro === "completadas" && !completada) ||
-      (filtro === "pendientes" && completada)
-    ) {
-      return; // No mostrar si no coincide con el filtro
-    }
+        const tareaDiv = document.createElement("div");
+        tareaDiv.classList.add("tarea");
+        tareaDiv.innerHTML = `
+            <input type="checkbox" ${completada ? "checked" : ""} data-index="${index}">
+            <label style="text-decoration: ${completada ? "line-through" : "none"};">${element}</label>
+            <small>📅 Creada: ${fechaCreacion} | ✅ ${fechaFinalizacion}</small>
+            <button onclick="eliminarTarea(${index})">❌</button>
+        `;
 
-    // Crear elementos HTML dinámicamente
-    const tareaDiv = document.createElement("div");
+        const checkbox = tareaDiv.querySelector("input");
+        checkbox.addEventListener("change", () => {
+            listaChecked[index] = checkbox.checked;
+            listaCompletadas[index] = checkbox.checked ? new Date().toISOString() : null;
+            guardarEnLocalStorage();
+            MostrarTareas();
+        });
 
-    const checkbox = document.createElement("input");
-    checkbox.type = "checkbox";
-    checkbox.checked = completada;
-
-    const label = document.createElement("label");
-    label.textContent = element;
-    label.style.textDecoration = completada ? "line-through" : "none";
-
-    const btnEliminar = document.createElement("button");
-    btnEliminar.textContent = "❌";
-    btnEliminar.style.marginLeft = "10px";
-    btnEliminar.onclick = () => eliminarTarea(index);
-
-    // Marcar como completada o no
-    checkbox.addEventListener("change", () => {
-      listaChecked[index] = checkbox.checked;
-      guardarEnLocalStorage();
-      MostrarTareas();
+        divMostrar.appendChild(tareaDiv);
     });
-
-    // Agregar elementos al div
-    tareaDiv.appendChild(checkbox);
-    tareaDiv.appendChild(label);
-    tareaDiv.appendChild(btnEliminar);
-    divMostrar.appendChild(tareaDiv);
-  });
 };
 
-// Eliminar una tarea específica
+// Eliminar una tarea
 const eliminarTarea = (index) => {
-  lista.splice(index, 1);
-  listaChecked.splice(index, 1);
-  guardarEnLocalStorage();
-  MostrarTareas();
+    [lista, listaChecked, listaTiempos, listaCompletadas].forEach(arr => arr.splice(index, 1));
+    guardarEnLocalStorage();
+    MostrarTareas();
 };
 
 // Eliminar todas las tareas
 const eliminarTodo = () => {
-  lista.length = 0;
-  listaChecked.length = 0;
-  guardarEnLocalStorage();
-  MostrarTareas();
+    [lista, listaChecked, listaTiempos, listaCompletadas].forEach(arr => arr.length = 0);
+    guardarEnLocalStorage();
+    MostrarTareas();
 };
 
-// Actualizar la vista al cambiar el filtro
-filtroSelect.addEventListener("change", MostrarTareas);
+// Tarea más rápida en completarse
+const tareaMasRapida = () => {
+    let minTiempo = Infinity;
+    let tareaRapida = null;
 
-// Mostrar tareas al cargar la página
+    lista.forEach((tarea, index) => {
+        if (listaChecked[index] && listaCompletadas[index]) {
+            const tiempoTotal = new Date(listaCompletadas[index]) - new Date(listaTiempos[index]);
+            if (tiempoTotal < minTiempo) {
+                minTiempo = tiempoTotal;
+                tareaRapida = tarea;
+            }
+        }
+    });
+
+    alert(tareaRapida ? `Tarea más rápida: "${tareaRapida}" en ${minTiempo / 1000} segundos.` : "No hay tareas completadas.");
+};
+
+filtroSelect.addEventListener("change", MostrarTareas);
 MostrarTareas();
