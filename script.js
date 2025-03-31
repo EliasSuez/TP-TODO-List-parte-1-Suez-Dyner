@@ -1,21 +1,30 @@
-let lista = [];
-let listaChecked = [];
+let lista = JSON.parse(localStorage.getItem("tareas")) || [];
+let listaChecked = JSON.parse(localStorage.getItem("tareasChecked")) || [];
+
 const formulario = document.getElementById("formulario");
 const divMostrar = document.getElementById("mostrarTareas");
 
 formulario.addEventListener("submit", (event) => {
   event.preventDefault();
   const tareaInput = document.getElementById("tarea");
-  const tarea = tareaInput.value;
+  const tarea = tareaInput.value.trim(); // Evita espacios vacíos
 
   if (tarea) {
     lista.push(tarea);
     listaChecked.push(false);
+    guardarEnLocalStorage();
     MostrarTareas();
     tareaInput.value = '';
   }
 });
 
+// Función para guardar en localStorage
+const guardarEnLocalStorage = () => {
+  localStorage.setItem("tareas", JSON.stringify(lista));
+  localStorage.setItem("tareasChecked", JSON.stringify(listaChecked));
+};
+
+// Función para mostrar tareas
 const MostrarTareas = () => {
   divMostrar.innerHTML = '';
 
@@ -24,11 +33,9 @@ const MostrarTareas = () => {
 
     const checkbox = document.createElement("input");
     checkbox.type = "checkbox";
-    checkbox.id = `checkTarea${index}`;
     checkbox.checked = listaChecked[index];
 
     const label = document.createElement("label");
-    label.id = `campo${index}`;
     label.textContent = element;
     label.style.textDecoration = listaChecked[index] ? "line-through" : "none";
 
@@ -40,6 +47,7 @@ const MostrarTareas = () => {
     checkbox.addEventListener("change", () => {
       listaChecked[index] = checkbox.checked;
       label.style.textDecoration = checkbox.checked ? "line-through" : "none";
+      guardarEnLocalStorage();
     });
 
     tareaDiv.appendChild(checkbox);
@@ -49,18 +57,13 @@ const MostrarTareas = () => {
   });
 };
 
+// Función para eliminar tareas
 const eliminarTarea = (index) => {
   lista.splice(index, 1);
   listaChecked.splice(index, 1);
+  guardarEnLocalStorage();
   MostrarTareas();
 };
 
-const eliminarTodo = () =>{
-    console.log("aoijnsdaisdiasdiahsbdibu")
-    console.log(lista)
-    lista.forEach(element => {
-        lista.splice(element, 1)
-        listaChecked.splice(element, 1)
-    });
-    divMostrar.innerHTML = '';
-}
+// Mostrar tareas al cargar la página
+MostrarTareas();
